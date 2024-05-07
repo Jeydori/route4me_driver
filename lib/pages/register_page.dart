@@ -5,6 +5,7 @@ import 'package:route4me_driver/components/button.dart';
 import 'package:route4me_driver/components/text_field.dart';
 import 'package:route4me_driver/components/circle_tile.dart';
 import 'package:route4me_driver/global/global.dart';
+import 'package:route4me_driver/pages/car_info_page.dart';
 import 'package:route4me_driver/services/auth_service.dart';
 
 class RegisterPage extends StatefulWidget {
@@ -40,7 +41,7 @@ class _RegisterPageState extends State<RegisterPage> {
     try {
       Future<void> addUserDetails(String firstName, String lastName, int age,
           String email, String uid) async {
-        await FirebaseFirestore.instance.collection("Users").doc(uid).set({
+        await FirebaseFirestore.instance.collection("Drivers").doc(uid).set({
           'First Name': firstName,
           'Last Name': lastName,
           'Age': age,
@@ -80,6 +81,12 @@ class _RegisterPageState extends State<RegisterPage> {
                     textAlign: TextAlign.center, 'You have been registered!'),
               );
             });
+
+        // Navigate to CarInfoPage
+        Navigator.pushReplacement(
+          context,
+          MaterialPageRoute(builder: (context) => carInfoPage()),
+        );
       } else {
         //show error message that passwords don't match
         showDialog(
