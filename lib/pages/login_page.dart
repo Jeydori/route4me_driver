@@ -5,7 +5,6 @@ import 'package:route4me_driver/components/button.dart';
 import 'package:route4me_driver/components/text_field.dart';
 import 'package:route4me_driver/components/circle_tile.dart';
 import 'package:route4me_driver/pages/forgot_page.dart';
-import 'package:route4me_driver/pages/home_page.dart';
 import 'package:route4me_driver/services/auth_service.dart';
 import 'package:route4me_driver/global/global.dart';
 

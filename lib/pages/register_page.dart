@@ -85,7 +85,7 @@ class _RegisterPageState extends State<RegisterPage> {
         // Navigate to CarInfoPage
         Navigator.pushReplacement(
           context,
-          MaterialPageRoute(builder: (context) => carInfoPage()),
+          MaterialPageRoute(builder: (context) => const carInfoPage()),
         );
       } else {
         //show error message that passwords don't match

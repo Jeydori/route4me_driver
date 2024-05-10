@@ -16,7 +16,7 @@ class assistantMethods {
       final currentUser = firebaseAuth.currentUser;
       if (currentUser != null) {
         final userRef =
-            FirebaseFirestore.instance.collection('Users').doc(currentUser.uid);
+            FirebaseFirestore.instance.collection('Drivers').doc(currentUser.uid);
 
         DocumentSnapshot doc = await userRef.get();
 

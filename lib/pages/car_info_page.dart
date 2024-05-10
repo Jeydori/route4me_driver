@@ -37,18 +37,18 @@ class _carInfoPageState extends State<carInfoPage> {
           context: context,
           builder: (context) {
             return AlertDialog(
-              title: Text('Success'),
-              content: Text('PUV details added successfully!'),
+              title: const Text('Success'),
+              content: const Text('PUV details added successfully!'),
               actions: <Widget>[
                 TextButton(
                   onPressed: () {
                     Navigator.of(context).pop();
                     Navigator.pushReplacement(
                       context,
-                      MaterialPageRoute(builder: (context) => HomePage()),
+                      MaterialPageRoute(builder: (context) => const HomePage()),
                     );
                   },
-                  child: Text('OK'),
+                  child: const Text('OK'),
                 ),
               ],
             );
@@ -64,15 +64,15 @@ class _carInfoPageState extends State<carInfoPage> {
         context: context,
         builder: (context) {
           return AlertDialog(
-            title: Text('Error'),
+            title: const Text('Error'),
             content:
-                Text('Failed to save PUV details. Please try again later.'),
+                const Text('Failed to save PUV details. Please try again later.'),
             actions: <Widget>[
               TextButton(
                 onPressed: () {
                   Navigator.of(context).pop();
                 },
-                child: Text('OK'),
+                child: const Text('OK'),
               ),
             ],
           );
@@ -89,11 +89,11 @@ class _carInfoPageState extends State<carInfoPage> {
       },
       child: Scaffold(
         body: ListView(
-          padding: EdgeInsets.all(10),
+          padding: const EdgeInsets.all(10),
           children: [
             Column(
               children: [
-                SizedBox(
+                const SizedBox(
                   height: 60,
                 ),
                 Icon(
@@ -101,10 +101,10 @@ class _carInfoPageState extends State<carInfoPage> {
                   size: 100,
                   color: Colors.orange[600],
                 ),
-                SizedBox(
+                const SizedBox(
                   height: 30,
                 ),
-                Text(
+                const Text(
                   'Add PUV Details',
                   style: TextStyle(
                     color: Colors.black,
@@ -113,7 +113,7 @@ class _carInfoPageState extends State<carInfoPage> {
                   ),
                 ),
 
-                SizedBox(
+                const SizedBox(
                   height: 20,
                 ),
 
@@ -122,7 +122,7 @@ class _carInfoPageState extends State<carInfoPage> {
                   hintText: '   Plate No.',
                   obscureText: false,
                 ),
-                SizedBox(
+                const SizedBox(
                   height: 20,
                 ),
                 Padding(
@@ -135,7 +135,7 @@ class _carInfoPageState extends State<carInfoPage> {
                         fillColor: Colors.grey[300],
                         border: OutlineInputBorder(
                           borderRadius: BorderRadius.circular(10),
-                          borderSide: BorderSide(
+                          borderSide: const BorderSide(
                             width: 0,
                             style: BorderStyle.none,
                           ),
@@ -143,11 +143,11 @@ class _carInfoPageState extends State<carInfoPage> {
                       ),
                       items: carTypes.map((car) {
                         return DropdownMenuItem(
+                          value: car,
                           child: Text(
                             car,
                             style: TextStyle(color: Colors.grey[600]),
                           ),
-                          value: car,
                         );
                       }).toList(),
                       onChanged: (newValue) {
@@ -156,7 +156,7 @@ class _carInfoPageState extends State<carInfoPage> {
                         });
                       }),
                 ),
-                SizedBox(
+                const SizedBox(
                   height: 20,
                 ),
 

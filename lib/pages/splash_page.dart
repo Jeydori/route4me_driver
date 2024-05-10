@@ -2,7 +2,6 @@ import 'package:flutter/material.dart';
 import 'dart:async';
 
 import 'package:route4me_driver/pages/auth_page.dart';
-import 'package:route4me_driver/pages/car_info_page.dart';
 
 class SplashPage extends StatefulWidget {
   const SplashPage({super.key});
