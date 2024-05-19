@@ -1,22 +1,19 @@
 import 'dart:async';
-
-import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:firebase_database/firebase_database.dart';
 import 'package:flutter/material.dart';
 import 'package:geolocator/geolocator.dart';
 import 'package:google_maps_flutter/google_maps_flutter.dart';
 import 'package:route4me_driver/assistants/assistant_methods.dart';
 import 'package:route4me_driver/global/global.dart';
-//import 'package:location/location.dart' hide LocationAccuracy;
 
 class HomeTab extends StatefulWidget {
-  const HomeTab({ super.key });
+  const HomeTab({super.key});
 
   @override
   State<HomeTab> createState() => _HomeTabState();
 }
 
 class _HomeTabState extends State<HomeTab> {
-
   GoogleMapController? newGoogleMapController;
   final Completer<GoogleMapController> _controllerGoogleMap = Completer();
 
@@ -46,8 +43,8 @@ class _HomeTabState extends State<HomeTab> {
         desiredAccuracy: LocationAccuracy.high);
     driverCurrentPosition = cPosition;
 
-    LatLng latLngPosition =
-        LatLng(driverCurrentPosition!.latitude, driverCurrentPosition!.longitude);
+    LatLng latLngPosition = LatLng(
+        driverCurrentPosition!.latitude, driverCurrentPosition!.longitude);
     CameraPosition cameraPosition =
         CameraPosition(target: latLngPosition, zoom: 15);
 
@@ -57,28 +54,32 @@ class _HomeTabState extends State<HomeTab> {
     String humanReadableAddress = await assistantMethods
         .searchAddressForGeographicCoordinates(driverCurrentPosition!, context);
     print('This is our address = $humanReadableAddress');
-
-    // assistantMethods.
   }
 
   Future<void> readCurrentDriverInformation() async {
-  var currentUser = firebaseAuth.currentUser;
-  var snapshot = await FirebaseFirestore.instance
-      .collection("Drivers")
-      .doc(currentUser!.uid)
-      .get();
-  
-  if (snapshot.exists) {
-    onlineDriverData.firstName = snapshot["First Name"];
-    onlineDriverData.lastName = snapshot["Last Name"];
-    onlineDriverData.age = snapshot["Age"];
-    onlineDriverData.email = snapshot["Email"];
-    onlineDriverData.carPlate = snapshot['car_details']["carPlate"];
-    onlineDriverData.carType = snapshot['car_details']["carType"];
+    var currentUser = firebaseAuth.currentUser;
+    if (currentUser != null) {
+      DatabaseReference driverRef = FirebaseDatabase.instance
+          .ref()
+          .child("Drivers")
+          .child(currentUser.uid);
+      DatabaseEvent event = await driverRef.once();
 
-    driverVehicleType = snapshot["car_details"]["type"];
+      if (event.snapshot.value != null) {
+        Map<dynamic, dynamic> driverData =
+            event.snapshot.value as Map<dynamic, dynamic>;
+
+        onlineDriverData.firstName = driverData["First Name"];
+        onlineDriverData.lastName = driverData["Last Name"];
+        onlineDriverData.age = driverData["Age"];
+        onlineDriverData.email = driverData["Email"];
+        onlineDriverData.carPlate = driverData['car_details']["carPlate"];
+        onlineDriverData.carType = driverData['car_details']["carType"];
+
+        driverVehicleType = driverData["car_details"]["type"];
+      }
+    }
   }
-}
 
   @override
   void initState() {
@@ -92,7 +93,7 @@ class _HomeTabState extends State<HomeTab> {
     return Stack(
       children: [
         GoogleMap(
-          padding: EdgeInsets.only(top: 40),
+          padding: const EdgeInsets.only(top: 40),
           mapType: MapType.normal,
           myLocationEnabled: true,
           zoomControlsEnabled: false,
