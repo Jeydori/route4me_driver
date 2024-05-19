@@ -1,4 +1,3 @@
-import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:route4me_driver/components/button.dart';
@@ -7,6 +6,7 @@ import 'package:route4me_driver/components/circle_tile.dart';
 import 'package:route4me_driver/global/global.dart';
 import 'package:route4me_driver/pages/car_info_page.dart';
 import 'package:route4me_driver/services/auth_service.dart';
+import 'package:firebase_database/firebase_database.dart';
 
 class RegisterPage extends StatefulWidget {
   final Function()? onTap;
@@ -41,14 +41,16 @@ class _RegisterPageState extends State<RegisterPage> {
     try {
       Future<void> addUserDetails(String firstName, String lastName, int age,
           String email, String uid) async {
-        await FirebaseFirestore.instance.collection("Drivers").doc(uid).set({
+        DatabaseReference userRef =
+            FirebaseDatabase.instance.reference().child("Drivers").child(uid);
+        await userRef.set({
           'First Name': firstName,
           'Last Name': lastName,
           'Age': age,
           'Email': email,
           'Uid': uid,
         }).then((_) {
-          print("Document added with ID: $uid");
+          print("User added with ID: $uid");
         }).catchError((error) {
           print("Failed to add user: $error");
         });

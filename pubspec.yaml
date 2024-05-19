@@ -52,6 +52,7 @@ dependencies:
   provider: ^6.1.2
 
   http: any
+  firebase_database: ^10.5.5
 dev_dependencies:
   flutter_test:
     sdk: flutter

@@ -1,6 +1,6 @@
-import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
+import 'package:firebase_database/firebase_database.dart';
 import 'package:route4me_driver/components/button.dart';
 import 'package:route4me_driver/components/text_field.dart';
 import 'package:route4me_driver/components/circle_tile.dart';
@@ -19,7 +19,6 @@ class LoginPage extends StatefulWidget {
 class _LoginPageState extends State<LoginPage> {
   //text editing controllers
   final emailController = TextEditingController();
-
   final passwordController = TextEditingController();
 
   //sign user in method
@@ -41,16 +40,23 @@ class _LoginPageState extends State<LoginPage> {
         password: passwordController.text,
       );
 
-      // fetch user data from "Users" collection
-      await FirebaseFirestore.instance
-          .collection('Drivers')
-          .doc(userCredential.user?.uid)
-          .get();
+      // fetch user data from "Drivers" collection in Realtime Database
+      DatabaseReference userRef = FirebaseDatabase.instance
+          .ref()
+          .child('Drivers')
+          .child(userCredential.user!.uid);
+      DatabaseEvent event = await userRef.once();
+
+      if (event.snapshot.value != null) {
+        // User data exists in the database, you can handle it here
+        print('User data retrieved: ${event.snapshot.value}');
+        // Store user data in global variable or use as needed
+      } else {
+        throw Exception('User document does not exist');
+      }
 
       //pop the loading circle
       Navigator.pop(context);
-
-      // handle user data here, you can access it using userDoc.data()
     } on FirebaseAuthException catch (e) {
       //pop the loading circle
       Navigator.pop(context);

@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:firebase_database/firebase_database.dart';
 import 'package:route4me_driver/global/global.dart';
 import 'package:route4me_driver/models/user_model.dart';
 
@@ -27,15 +27,23 @@ class _ProfilePageState extends State<ProfilePage> {
     try {
       final currentUser = firebaseAuth.currentUser;
       if (currentUser != null) {
-        final userRef =
-            FirebaseFirestore.instance.collection('Users').doc(currentUser.uid);
+        final userRef = FirebaseDatabase.instance
+            .reference()
+            .child('Users')
+            .child(currentUser.uid);
 
-        DocumentSnapshot doc = await userRef.get();
+        DataSnapshot snapshot = (await userRef.once()) as DataSnapshot;
 
-        if (doc.exists) {
-          // Update user model with fetched data
+        if (snapshot.value != null) {
+          final data = Map<String, dynamic>.from(snapshot.value as Map);
           setState(() {
-            userModelCurrentInfo = UserModel.fromSnapshot(doc);
+            userModelCurrentInfo = UserModel(
+              firstName: data['First Name'] ?? '',
+              lastName: data['Last Name'] ?? '',
+              age: data['Age'] ?? 0,
+              email: data['Email'] ?? '',
+              uid: currentUser.uid,
+            );
             // Set the initial values for all fields
             firstNameController.text = userModelCurrentInfo!.firstName;
             lastNameController.text = userModelCurrentInfo!.lastName;
@@ -95,7 +103,7 @@ class _ProfilePageState extends State<ProfilePage> {
             ),
             TextButton(
               onPressed: () {
-                // Implement the logic to update user information in Firestore
+                // Implement the logic to update user information in Firebase Realtime Database
                 updateUserInfo();
                 Navigator.pop(context);
               },
@@ -114,8 +122,10 @@ class _ProfilePageState extends State<ProfilePage> {
     try {
       final currentUser = firebaseAuth.currentUser;
       if (currentUser != null) {
-        final userRef =
-            FirebaseFirestore.instance.collection('Users').doc(currentUser.uid);
+        final userRef = FirebaseDatabase.instance
+            .reference()
+            .child('Users')
+            .child(currentUser.uid);
 
         await userRef.update({
           'First Name': firstNameController.text,

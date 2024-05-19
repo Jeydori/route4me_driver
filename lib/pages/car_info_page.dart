@@ -1,4 +1,4 @@
-import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:firebase_database/firebase_database.dart';
 import 'package:flutter/material.dart';
 import 'package:route4me_driver/components/button.dart';
 import 'package:route4me_driver/components/text_field.dart';
@@ -17,15 +17,20 @@ class _carInfoPageState extends State<carInfoPage> {
   List<String> carTypes = ['Jeepney', 'E-Jeepney', 'Bus'];
   String? selectedCarType;
 
-  //final formKey = GlobalKey<FormState>();
+  @override
+  void dispose() {
+    carPlateController.dispose();
+    super.dispose();
+  }
 
   void savePUVDetails() async {
     try {
       final currentUser = firebaseAuth.currentUser;
       if (currentUser != null) {
-        final userRef = FirebaseFirestore.instance
-            .collection('Drivers')
-            .doc(currentUser.uid);
+        final userRef = FirebaseDatabase.instance
+            .reference()
+            .child('Drivers')
+            .child(currentUser.uid);
 
         await userRef.update({
           'carPlate': carPlateController.text,
@@ -65,8 +70,8 @@ class _carInfoPageState extends State<carInfoPage> {
         builder: (context) {
           return AlertDialog(
             title: const Text('Error'),
-            content:
-                const Text('Failed to save PUV details. Please try again later.'),
+            content: const Text(
+                'Failed to save PUV details. Please try again later.'),
             actions: <Widget>[
               TextButton(
                 onPressed: () {
@@ -112,11 +117,9 @@ class _carInfoPageState extends State<carInfoPage> {
                     fontWeight: FontWeight.normal,
                   ),
                 ),
-
                 const SizedBox(
                   height: 20,
                 ),
-
                 textfield(
                   controller: carPlateController,
                   hintText: '   Plate No.',
@@ -130,7 +133,6 @@ class _carInfoPageState extends State<carInfoPage> {
                   child: DropdownButtonFormField(
                       decoration: InputDecoration(
                         hintText: '   Choose PUV Type',
-                        //prefixIcon: Icon(Icons.car_crash_outlined),
                         filled: true,
                         fillColor: Colors.grey[300],
                         border: OutlineInputBorder(
@@ -159,14 +161,11 @@ class _carInfoPageState extends State<carInfoPage> {
                 const SizedBox(
                   height: 20,
                 ),
-
-                //signUp button
                 const SizedBox(height: 15),
                 button(
                   text: "Add Details",
                   onTap: savePUVDetails,
                 ),
-                //divider
                 const SizedBox(height: 20),
               ],
             )

@@ -1,4 +1,4 @@
-import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:firebase_database/firebase_database.dart';
 import 'package:geolocator/geolocator.dart';
 import 'package:google_maps_flutter/google_maps_flutter.dart';
 import 'package:provider/provider.dart';
@@ -15,13 +15,15 @@ class assistantMethods {
     try {
       final currentUser = firebaseAuth.currentUser;
       if (currentUser != null) {
-        final userRef =
-            FirebaseFirestore.instance.collection('Drivers').doc(currentUser.uid);
+        final userRef = FirebaseDatabase.instance
+            .reference()
+            .child('Drivers')
+            .child(currentUser.uid);
 
-        DocumentSnapshot doc = await userRef.get();
+        DataSnapshot snapshot = (await userRef.once()) as DataSnapshot;
 
-        if (doc.exists) {
-          userModelCurrentInfo = UserModel.fromSnapshot(doc);
+        if (snapshot.value != null) {
+          userModelCurrentInfo = UserModel.fromSnapshot(snapshot);
           print('User info retrieved: $userModelCurrentInfo');
         } else {
           throw Exception('User document does not exist');
@@ -38,12 +40,12 @@ class assistantMethods {
   static Future<String> searchAddressForGeographicCoordinates(
       Position position, context) async {
     String apiURL =
-        "https://maps.googleapis.com/maps/api/geocode/json/latlng=${position.latitude},${position.longitude}&key=$mapKey";
+        "https://maps.googleapis.com/maps/api/geocode/json?latlng=${position.latitude},${position.longitude}&key=$mapKey";
     String humanReadableAddress = "";
 
     var requestResponse = await RequestAssistant.receiveRequest(apiURL);
 
-    if (requestResponse != "Error Occured. Failed. No Response.") {
+    if (requestResponse != "Error Occurred. Failed. No Response.") {
       humanReadableAddress = requestResponse["results"][0]["formatted_address"];
 
       Directions userPickUpAddress = Directions();
@@ -63,10 +65,6 @@ class assistantMethods {
         "https://maps.googleapis.com/maps/api/directions/json?origin=${originPosition.latitude},${originPosition.longitude}&destination=${destinationPosition.latitude},${destinationPosition.longitude}&key=$mapKey";
     var responseDirectionApi = await RequestAssistant.receiveRequest(
         urlOriginToDestinationDirectionDetails);
-
-    // if (responseDirectionApi == "Error Occured. Failed. No Response.") {
-    //   return ;
-    // }
 
     DirectionDetailsInfo directionDetailsInfo = DirectionDetailsInfo();
     directionDetailsInfo.e_points =
