@@ -32,16 +32,16 @@ class _HomePageState extends State<HomePage> with SingleTickerProviderStateMixin
   Widget build(BuildContext context) {
     return Scaffold(
       body: TabBarView(
-        physics: NeverScrollableScrollPhysics(),
+        physics: const NeverScrollableScrollPhysics(),
         controller: tabController,
-        children: [
+        children: const [
           HomeTab(),
           //RatingsTabPage(),
           //ProfileTabPage(),
         ],
       ),
       bottomNavigationBar: BottomNavigationBar(
-        items: [
+        items: const [
           BottomNavigationBarItem(icon: Icon(Icons.home_outlined,), label: 'Home'),
           BottomNavigationBarItem(icon: Icon(Icons.star_border_outlined,), label: 'Ratings'),
           BottomNavigationBarItem(icon: Icon(Icons.person_2_outlined,), label: 'Profile'),
@@ -50,7 +50,7 @@ class _HomePageState extends State<HomePage> with SingleTickerProviderStateMixin
         selectedItemColor: Colors.white,
         backgroundColor: Colors.orange[600],
         type: BottomNavigationBarType.fixed,
-        selectedLabelStyle: TextStyle(fontSize: 14),
+        selectedLabelStyle: const TextStyle(fontSize: 14),
         showUnselectedLabels: true,
         currentIndex: selectedIndex,
         onTap: onItemClicked,

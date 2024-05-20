@@ -28,7 +28,7 @@ class _ProfilePageState extends State<ProfilePage> {
       final currentUser = firebaseAuth.currentUser;
       if (currentUser != null) {
         final userRef = FirebaseDatabase.instance
-            .reference()
+            .ref()
             .child('Users')
             .child(currentUser.uid);
 

@@ -1,6 +1,8 @@
 import 'dart:async';
 import 'package:firebase_database/firebase_database.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
+import 'package:flutter_geofire/flutter_geofire.dart';
 import 'package:geolocator/geolocator.dart';
 import 'package:google_maps_flutter/google_maps_flutter.dart';
 import 'package:route4me_driver/assistants/assistant_methods.dart';
@@ -25,9 +27,10 @@ class _HomeTabState extends State<HomeTab> {
   var geoLocator = Geolocator();
 
   LocationPermission? locationPermission;
+  StreamSubscription<Position>? streamSubscriptionPosition;
 
   String statusText = 'Now Offline';
-  Color buttonColor = Colors.grey;
+  Color buttonColor = Colors.orange.shade600;
   bool isDriverActive = false;
 
   checkIfLocationPermissionAllowed() async {
@@ -56,29 +59,26 @@ class _HomeTabState extends State<HomeTab> {
     print('This is our address = $humanReadableAddress');
   }
 
-  Future<void> readCurrentDriverInformation() async {
-    var currentUser = firebaseAuth.currentUser;
-    if (currentUser != null) {
-      DatabaseReference driverRef = FirebaseDatabase.instance
-          .ref()
-          .child("Drivers")
-          .child(currentUser.uid);
-      DatabaseEvent event = await driverRef.once();
+  readCurrentDriverInformation() async {
+    currentUser = firebaseAuth.currentUser;
 
-      if (event.snapshot.value != null) {
-        Map<dynamic, dynamic> driverData =
-            event.snapshot.value as Map<dynamic, dynamic>;
+    FirebaseDatabase.instance
+        .ref()
+        .child('Drivers')
+        .child(currentUser!.uid)
+        .once()
+        .then((snap) {
+      if (snap.snapshot.value != null) {
+        onlineDriverData.firstName = (snap.snapshot.value as Map)['First Name'];
+        onlineDriverData.lastName = (snap.snapshot.value as Map)['Last Name'];
+        onlineDriverData.age = (snap.snapshot.value as Map)['Age'];
+        onlineDriverData.email = (snap.snapshot.value as Map)['Email'];
+        onlineDriverData.carPlate = (snap.snapshot.value as Map)["carPlate"];
+        onlineDriverData.carType = (snap.snapshot.value as Map)["carType"];
 
-        onlineDriverData.firstName = driverData["First Name"];
-        onlineDriverData.lastName = driverData["Last Name"];
-        onlineDriverData.age = driverData["Age"];
-        onlineDriverData.email = driverData["Email"];
-        onlineDriverData.carPlate = driverData['car_details']["carPlate"];
-        onlineDriverData.carType = driverData['car_details']["carType"];
-
-        driverVehicleType = driverData["car_details"]["type"];
+        driverVehicleType = (snap.snapshot.value as Map)['type'];
       }
-    }
+    });
   }
 
   @override
@@ -107,8 +107,132 @@ class _HomeTabState extends State<HomeTab> {
             setState(() {});
             locateDriverPosition();
           },
-        )
+        ),
+
+        //ui for online/offline driver
+        statusText != 'Now Online'
+            ? Container(
+                height: MediaQuery.of(context).size.height,
+                width: double.infinity,
+                color: Colors.black87,
+              )
+            : Container(),
+
+        Positioned(
+          top: statusText != 'Now Online'
+              ? MediaQuery.of(context).size.height * 0.45
+              : 40,
+          left: 0,
+          right: 0,
+          child: Row(
+            mainAxisAlignment: MainAxisAlignment.center,
+            children: [
+              ElevatedButton(
+                onPressed: () {
+                  if (isDriverActive != true) {
+                    driverIsOnlineNow();
+                    updateDriversLocationAtRealtime();
+
+                    setState(() {
+                      statusText = 'Now Online';
+                      isDriverActive = true;
+                      buttonColor = Colors.transparent;
+                    });
+                  } else {
+                    driverIsOfflineNow();
+                    setState(() {
+                      statusText = 'Now Offline';
+                      isDriverActive = false;
+                      buttonColor = Colors.orange.shade600;
+                    });
+                    showDialog(
+                      context: context,
+                      builder: (context) {
+                        return AlertDialog(
+                          content: Center(child: Text('You are offline now')),
+                        );
+                      },
+                    );
+                  }
+                },
+                style: ElevatedButton.styleFrom(
+                    backgroundColor: buttonColor,
+                    padding: EdgeInsets.symmetric(horizontal: 18),
+                    shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(10),
+                    )),
+                child: statusText != 'Now Online'
+                    ? Text(
+                        statusText,
+                        style: TextStyle(
+                          fontSize: 16,
+                          fontWeight: FontWeight.bold,
+                          color: Colors.white,
+                        ),
+                      )
+                    : Icon(
+                        Icons.phonelink_ring_outlined,
+                        color: Colors.white,
+                        size: 26,
+                      ),
+              ),
+            ],
+          ),
+        ),
       ],
     );
+  }
+
+  driverIsOnlineNow() async {
+    Position pos = await Geolocator.getCurrentPosition(
+      desiredAccuracy: LocationAccuracy.high,
+    );
+
+    driverCurrentPosition = pos;
+
+    Geofire.initialize('activeDrivers');
+    Geofire.setLocation(currentUser!.uid, driverCurrentPosition!.latitude,
+        driverCurrentPosition!.longitude);
+
+    DatabaseReference ref = FirebaseDatabase.instance
+        .ref()
+        .child('Drivers')
+        .child(currentUser!.uid)
+        .child('newRideStatus');
+
+    ref.set('idle');
+    ref.onValue.listen((event) {});
+  }
+
+  updateDriversLocationAtRealtime() {
+    streamSubscriptionPosition =
+        Geolocator.getPositionStream().listen((Position position) {
+      if (isDriverActive == true) {
+        Geofire.setLocation(currentUser!.uid, driverCurrentPosition!.latitude,
+            driverCurrentPosition!.longitude);
+      }
+      LatLng latlng = LatLng(
+          driverCurrentPosition!.latitude, driverCurrentPosition!.longitude);
+
+      newGoogleMapController!.animateCamera(CameraUpdate.newLatLng(latlng));
+    });
+  }
+
+  driverIsOfflineNow() {
+    Geofire.removeLocation(currentUser!.uid);
+
+    DatabaseReference? ref = FirebaseDatabase.instance
+        .ref()
+        .child('Drivers')
+        .child(currentUser!.uid)
+        .child('newRideStatus');
+
+    ref.onDisconnect();
+    ref.remove();
+    ref = null;
+
+    Future.delayed(Duration(milliseconds: 2000), () {
+      SystemChannels.platform.invokeMethod('SystemNavigator.pop');
+    });
   }
 }
