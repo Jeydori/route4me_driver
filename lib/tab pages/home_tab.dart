@@ -149,7 +149,13 @@ class _HomeTabState extends State<HomeTab> {
                       context: context,
                       builder: (context) {
                         return AlertDialog(
-                          content: Center(child: Text('You are offline now')),
+                          content: Container(
+                            constraints: BoxConstraints(
+                              maxHeight: 25,
+                              maxWidth: 50,
+                            ),
+                            child: Center(child: Text('You are offline now')),
+                          ),
                         );
                       },
                     );
