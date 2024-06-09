@@ -19,8 +19,8 @@ class _HomeTabState extends State<HomeTab> {
   GoogleMapController? newGoogleMapController;
   final Completer<GoogleMapController> _controllerGoogleMap = Completer();
 
-  static const CameraPosition _kGooglePlex = CameraPosition(
-    target: LatLng(37.42796133580664, -122.085749655962),
+  static const CameraPosition Manila = CameraPosition(
+    target: LatLng(14.599512, 120.984222),
     zoom: 14.4746,
   );
 
@@ -32,6 +32,7 @@ class _HomeTabState extends State<HomeTab> {
   String statusText = 'Now Offline';
   Color buttonColor = Colors.orange.shade600;
   bool isDriverActive = false;
+  bool isVehicleFull = false;
 
   checkIfLocationPermissionAllowed() async {
     locationPermission = await Geolocator.requestPermission();
@@ -89,104 +90,117 @@ class _HomeTabState extends State<HomeTab> {
   }
 
   @override
+  void dispose() {
+    streamSubscriptionPosition
+        ?.cancel(); // Cancel the subscription when the state is disposed.
+    super.dispose();
+  }
+
+  @override
   Widget build(BuildContext context) {
-    return Stack(
-      children: [
-        GoogleMap(
-          padding: const EdgeInsets.only(top: 40),
-          mapType: MapType.normal,
-          myLocationEnabled: true,
-          zoomControlsEnabled: false,
-          zoomGesturesEnabled: true,
-          initialCameraPosition: _kGooglePlex,
-          onMapCreated: (GoogleMapController controller) {
-            _controllerGoogleMap.complete(controller);
-
-            newGoogleMapController = controller;
-
-            setState(() {});
-            locateDriverPosition();
-          },
-        ),
-
-        //ui for online/offline driver
-        statusText != 'Now Online'
-            ? Container(
-                height: MediaQuery.of(context).size.height,
-                width: double.infinity,
-                color: Colors.black87,
-              )
-            : Container(),
-
-        Positioned(
-          top: statusText != 'Now Online'
-              ? MediaQuery.of(context).size.height * 0.45
-              : 40,
-          left: 0,
-          right: 0,
-          child: Row(
-            mainAxisAlignment: MainAxisAlignment.center,
-            children: [
-              ElevatedButton(
-                onPressed: () {
-                  if (isDriverActive != true) {
-                    driverIsOnlineNow();
-                    updateDriversLocationAtRealtime();
-
-                    setState(() {
-                      statusText = 'Now Online';
-                      isDriverActive = true;
-                      buttonColor = Colors.transparent;
-                    });
-                  } else {
-                    driverIsOfflineNow();
-                    setState(() {
-                      statusText = 'Now Offline';
-                      isDriverActive = false;
-                      buttonColor = Colors.orange.shade600;
-                    });
-                    showDialog(
-                      context: context,
-                      builder: (context) {
-                        return AlertDialog(
-                          content: Container(
-                            constraints: BoxConstraints(
-                              maxHeight: 25,
-                              maxWidth: 50,
-                            ),
-                            child: Center(child: Text('You are offline now')),
-                          ),
-                        );
-                      },
-                    );
-                  }
-                },
-                style: ElevatedButton.styleFrom(
-                    backgroundColor: buttonColor,
-                    padding: EdgeInsets.symmetric(horizontal: 18),
-                    shape: RoundedRectangleBorder(
-                      borderRadius: BorderRadius.circular(10),
-                    )),
-                child: statusText != 'Now Online'
-                    ? Text(
-                        statusText,
-                        style: TextStyle(
-                          fontSize: 16,
-                          fontWeight: FontWeight.bold,
-                          color: Colors.white,
-                        ),
-                      )
-                    : Icon(
-                        Icons.phonelink_ring_outlined,
-                        color: Colors.white,
-                        size: 26,
-                      ),
-              ),
-            ],
+    return Scaffold(
+      body: Stack(
+        children: [
+          GoogleMap(
+            padding: const EdgeInsets.only(top: 40),
+            mapType: MapType.normal,
+            myLocationEnabled: true,
+            zoomControlsEnabled: false,
+            zoomGesturesEnabled: true,
+            initialCameraPosition: Manila,
+            onMapCreated: (GoogleMapController controller) {
+              _controllerGoogleMap.complete(controller);
+              newGoogleMapController = controller;
+              if (isDriverActive) {
+                locateDriverPosition();
+              }
+            },
           ),
-        ),
-      ],
+
+          // Overlay for online/offline UI
+          statusText != 'Now Online'
+              ? Container(
+                  height: MediaQuery.of(context).size.height,
+                  width: double.infinity,
+                  color: Colors.black87,
+                )
+              : Container(),
+
+          Positioned(
+            top: statusText != 'Now Online'
+                ? MediaQuery.of(context).size.height * 0.45
+                : 40,
+            left: 0,
+            right: 0,
+            child: Row(
+              mainAxisAlignment: MainAxisAlignment.center,
+              children: [
+                ElevatedButton(
+                  onPressed: toggleDriverStatus,
+                  style: ElevatedButton.styleFrom(
+                      backgroundColor: buttonColor,
+                      padding: EdgeInsets.symmetric(horizontal: 18),
+                      shape: RoundedRectangleBorder(
+                        borderRadius: BorderRadius.circular(10),
+                      )),
+                  child: Text(
+                    statusText,
+                    style: TextStyle(
+                      fontSize: 16,
+                      fontWeight: FontWeight.bold,
+                      color: Colors.white,
+                    ),
+                  ),
+                ),
+              ],
+            ),
+          ),
+
+          // Floating action buttons for vehicle status
+          if (isDriverActive) ...[
+            Positioned(
+              bottom: 110,
+              right: 10,
+              child: FloatingActionButton(
+                onPressed: () => setVehicleStatus(true),
+                backgroundColor: Colors.red,
+                child: Icon(Icons.bus_alert_outlined),
+                tooltip: 'Set Vehicle as Full',
+              ),
+            ),
+            Positioned(
+              bottom: 50,
+              right: 10,
+              child: FloatingActionButton(
+                onPressed: () => setVehicleStatus(false),
+                backgroundColor: Colors.green,
+                child: Icon(Icons.directions_bus_filled_outlined),
+                tooltip: 'Set Vehicle as Available',
+              ),
+            ),
+          ],
+        ],
+      ),
     );
+  }
+
+  void toggleDriverStatus() {
+    if (!isDriverActive) {
+      driverIsOnlineNow();
+      updateDriversLocationAtRealtime();
+      setState(() {
+        statusText = 'Now Online';
+        isDriverActive = true;
+        buttonColor = Colors.transparent;
+      });
+    } else {
+      driverIsOfflineNow();
+      setState(() {
+        statusText = 'Now Offline';
+        isDriverActive = false;
+        buttonColor = Colors.orange.shade600;
+      });
+    }
   }
 
   driverIsOnlineNow() async {
@@ -211,16 +225,17 @@ class _HomeTabState extends State<HomeTab> {
   }
 
   updateDriversLocationAtRealtime() {
+    streamSubscriptionPosition
+        ?.cancel(); // First, cancel any existing subscription.
     streamSubscriptionPosition =
         Geolocator.getPositionStream().listen((Position position) {
-      if (isDriverActive == true) {
-        Geofire.setLocation(currentUser!.uid, driverCurrentPosition!.latitude,
-            driverCurrentPosition!.longitude);
+      if (isDriverActive && !isVehicleFull) {
+        // Check if the driver is active and the vehicle is not full.
+        Geofire.setLocation(
+            currentUser!.uid, position.latitude, position.longitude);
+        newGoogleMapController!.animateCamera(CameraUpdate.newLatLng(
+            LatLng(position.latitude, position.longitude)));
       }
-      LatLng latlng = LatLng(
-          driverCurrentPosition!.latitude, driverCurrentPosition!.longitude);
-
-      newGoogleMapController!.animateCamera(CameraUpdate.newLatLng(latlng));
     });
   }
 
@@ -240,5 +255,18 @@ class _HomeTabState extends State<HomeTab> {
     Future.delayed(Duration(milliseconds: 2000), () {
       SystemChannels.platform.invokeMethod('SystemNavigator.pop');
     });
+  }
+
+  void setVehicleStatus(bool full) {
+    setState(() {
+      isVehicleFull = full;
+    });
+    if (isVehicleFull) {
+      Geofire.removeLocation(currentUser!.uid);
+      streamSubscriptionPosition
+          ?.cancel(); // Cancel the location stream when the vehicle is full.
+    } else {
+      updateDriversLocationAtRealtime();
+    }
   }
 }
