@@ -1,16 +1,18 @@
 import 'package:flutter/material.dart';
+import 'package:route4me_driver/tab%20pages/ratings_tab.dart';
+import 'package:route4me_driver/tab%20pages/settings_tab.dart';
 
 import '../tab pages/home_tab.dart';
 
 class HomePage extends StatefulWidget {
-  const HomePage({ super.key });
+  const HomePage({super.key});
 
   @override
   State<HomePage> createState() => _HomePageState();
 }
 
-class _HomePageState extends State<HomePage> with SingleTickerProviderStateMixin{
-
+class _HomePageState extends State<HomePage>
+    with SingleTickerProviderStateMixin {
   TabController? tabController;
   int selectedIndex = 0;
 
@@ -36,15 +38,27 @@ class _HomePageState extends State<HomePage> with SingleTickerProviderStateMixin
         controller: tabController,
         children: const [
           HomeTab(),
-          //RatingsTabPage(),
-          //ProfileTabPage(),
+          RatingsTabPage(),
+          SettingsPage(),
         ],
       ),
       bottomNavigationBar: BottomNavigationBar(
         items: const [
-          BottomNavigationBarItem(icon: Icon(Icons.home_outlined,), label: 'Home'),
-          BottomNavigationBarItem(icon: Icon(Icons.star_border_outlined,), label: 'Ratings'),
-          BottomNavigationBarItem(icon: Icon(Icons.person_2_outlined,), label: 'Profile'),
+          BottomNavigationBarItem(
+              icon: Icon(
+                Icons.home_outlined,
+              ),
+              label: 'Home'),
+          BottomNavigationBarItem(
+              icon: Icon(
+                Icons.star_border_outlined,
+              ),
+              label: 'Reviews'),
+          BottomNavigationBarItem(
+              icon: Icon(
+                Icons.settings_applications_outlined,
+              ),
+              label: 'Settings'),
         ],
         unselectedItemColor: Colors.black,
         selectedItemColor: Colors.white,
