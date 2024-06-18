@@ -14,7 +14,13 @@ class carInfoPage extends StatefulWidget {
 
 class _carInfoPageState extends State<carInfoPage> {
   final carPlateController = TextEditingController();
-  List<String> carTypes = ['Jeepney', 'E-Jeepney', 'Bus'];
+  List<String> carTypes = [
+    'Jeepney (TPUJ)',
+    'E-Jeepney Aircon (A-MPUJ)',
+    'E-Jeepney Non-Aircon (Na-MPUJ)',
+    'Bus Aircon (A-PUB)',
+    'Bus Ordinary (O-PUB)'
+  ];
   String? selectedCarType;
 
   @override
