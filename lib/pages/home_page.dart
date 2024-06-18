@@ -27,7 +27,7 @@ class _HomePageState extends State<HomePage>
   void initState() {
     super.initState();
 
-    tabController = TabController(length: 4, vsync: this);
+    tabController = TabController(length: 3, vsync: this);
   }
 
   @override

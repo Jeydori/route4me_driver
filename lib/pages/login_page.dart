@@ -1,16 +1,15 @@
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
-import 'package:firebase_database/firebase_database.dart';
 import 'package:route4me_driver/components/button.dart';
 import 'package:route4me_driver/components/text_field.dart';
 import 'package:route4me_driver/components/circle_tile.dart';
 import 'package:route4me_driver/pages/forgot_page.dart';
+import 'package:route4me_driver/pages/home_page.dart';
 import 'package:route4me_driver/services/auth_service.dart';
-import 'package:route4me_driver/global/global.dart';
 
 class LoginPage extends StatefulWidget {
   final Function()? onTap;
-  const LoginPage({super.key, required this.onTap});
+  const LoginPage({super.key, this.onTap});
 
   @override
   State<LoginPage> createState() => _LoginPageState();
@@ -23,52 +22,67 @@ class _LoginPageState extends State<LoginPage> {
 
   //sign user in method
   void logIn() async {
-    // show loading circle
-    showDialog(
-      context: context,
-      builder: (context) {
-        return const Center(
-          child: CircularProgressIndicator(),
-        );
-      },
-    );
-
-    // try signing in
+    showLoadingDialog();
     try {
-      final userCredential = await firebaseAuth.signInWithEmailAndPassword(
+      await FirebaseAuth.instance.signInWithEmailAndPassword(
         email: emailController.text,
         password: passwordController.text,
       );
 
-      // fetch user data from "Drivers" collection in Realtime Database
-      DatabaseReference userRef = FirebaseDatabase.instance
-          .ref()
-          .child('Drivers')
-          .child(userCredential.user!.uid);
-      DatabaseEvent event = await userRef.once();
+      // Optionally fetch additional user details here if necessary
 
-      if (event.snapshot.value != null) {
-        // User data exists in the database, you can handle it here
-        print('User data retrieved: ${event.snapshot.value}');
-        // Store user data in global variable or use as needed
-      } else {
-        throw Exception('User document does not exist');
-      }
+      dismissLoadingDialog(); // Ensure dialog is dismissed before navigating
 
-      //pop the loading circle
-      Navigator.pop(context);
+      // Navigate to HomePage or similar
+      navigateToHome();
     } on FirebaseAuthException catch (e) {
-      //pop the loading circle
-      Navigator.pop(context);
-      showDialog(
-        context: context,
-        builder: (context) {
-          return AlertDialog(
-            content: Text(e.message.toString()),
-          );
-        },
-      );
+      dismissLoadingDialog();
+      showErrorDialog(e.message ?? "An unknown error occurred.");
+    } catch (e) {
+      dismissLoadingDialog();
+      showErrorDialog('An unexpected error occurred: ${e.toString()}');
     }
+  }
+
+  void showLoadingDialog() {
+    if (!mounted) return;
+    showDialog(
+      context: context,
+      barrierDismissible: false,
+      builder: (context) => const Center(child: CircularProgressIndicator()),
+    );
+  }
+
+  void dismissLoadingDialog() {
+    if (Navigator.canPop(context)) {
+      Navigator.of(context, rootNavigator: true).pop();
+    }
+  }
+
+  void navigateToHome() {
+    Navigator.of(context).pushReplacement(
+      MaterialPageRoute(builder: (context) => const HomePage()),
+    );
+  }
+
+  void showErrorDialog(String message) {
+    if (!mounted) return;
+    showDialog(
+      context: context,
+      builder: (context) => AlertDialog(
+        content: Text(message),
+        actions: <Widget>[
+          TextButton(
+            child: const Text('OK'),
+            onPressed: () {
+              if (Navigator.canPop(context)) {
+                Navigator.of(context).pop(); // Dismiss the error dialog
+              }
+            },
+          ),
+        ],
+      ),
+    );
   }
 
   @override

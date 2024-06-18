@@ -100,7 +100,7 @@ class _RatingsTabPageState extends State<RatingsTabPage> {
                             Text('${5 - index} ',
                                 style: TextStyle(color: Colors.black)),
                             Icon(Icons.star, color: Colors.orange, size: 16),
-                            SizedBox(width: 10),
+                            const SizedBox(width: 10),
                             Expanded(
                               child: LinearProgressIndicator(
                                 value: (reviews
@@ -114,7 +114,7 @@ class _RatingsTabPageState extends State<RatingsTabPage> {
                                 minHeight: 10,
                               ),
                             ),
-                            SizedBox(width: 10),
+                            const SizedBox(width: 10),
                             Text(
                                 '${reviews.where((review) => review.rating.round() == 5 - index).length}'),
                           ],
@@ -124,13 +124,13 @@ class _RatingsTabPageState extends State<RatingsTabPage> {
                   ],
                 ),
               ),
-              SizedBox(height: 20),
-              Text('All Reviews',
+              const SizedBox(height: 20),
+              const Text('All Reviews',
                   style: TextStyle(
                       fontSize: 20,
                       fontWeight: FontWeight.bold,
                       color: Colors.black)),
-              ...reviews.map((review) => ReviewCard(review: review)).toList(),
+              ...reviews.map((review) => ReviewCard(review: review)),
             ],
           ),
         ),

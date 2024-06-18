@@ -139,13 +139,13 @@ class _HomeTabState extends State<HomeTab> {
                   onPressed: toggleDriverStatus,
                   style: ElevatedButton.styleFrom(
                       backgroundColor: buttonColor,
-                      padding: EdgeInsets.symmetric(horizontal: 18),
+                      padding: const EdgeInsets.symmetric(horizontal: 18),
                       shape: RoundedRectangleBorder(
                         borderRadius: BorderRadius.circular(10),
                       )),
                   child: Text(
                     statusText,
-                    style: TextStyle(
+                    style: const TextStyle(
                       fontSize: 16,
                       fontWeight: FontWeight.bold,
                       color: Colors.white,
@@ -164,8 +164,8 @@ class _HomeTabState extends State<HomeTab> {
               child: FloatingActionButton(
                 onPressed: () => setVehicleStatus(true),
                 backgroundColor: Colors.red,
-                child: Icon(Icons.bus_alert_outlined),
                 tooltip: 'Set Vehicle as Full',
+                child: const Icon(Icons.bus_alert_outlined),
               ),
             ),
             Positioned(
@@ -174,8 +174,8 @@ class _HomeTabState extends State<HomeTab> {
               child: FloatingActionButton(
                 onPressed: () => setVehicleStatus(false),
                 backgroundColor: Colors.green,
-                child: Icon(Icons.directions_bus_filled_outlined),
                 tooltip: 'Set Vehicle as Available',
+                child: const Icon(Icons.directions_bus_filled_outlined),
               ),
             ),
           ],
@@ -252,7 +252,7 @@ class _HomeTabState extends State<HomeTab> {
     ref.remove();
     ref = null;
 
-    Future.delayed(Duration(milliseconds: 2000), () {
+    Future.delayed(const Duration(milliseconds: 2000), () {
       SystemChannels.platform.invokeMethod('SystemNavigator.pop');
     });
   }

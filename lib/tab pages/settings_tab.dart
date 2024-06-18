@@ -1,140 +1,215 @@
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
+import 'package:route4me_driver/pages/login_page.dart';
 import 'package:route4me_driver/pages/profile_page.dart';
 import 'package:route4me_driver/services/acc_del.dart';
 
 class SettingsPage extends StatelessWidget {
   const SettingsPage({super.key});
 
+  void _confirmLogout(BuildContext context) {
+    showDialog(
+      context: context,
+      builder: (BuildContext context) {
+        return AlertDialog(
+          title: const Text("Confirm Logout"),
+          content: const Text("Are you sure you want to log out?"),
+          actions: <Widget>[
+            TextButton(
+              child:
+                  const Text('Cancel', style: TextStyle(color: Colors.orange)),
+              onPressed: () {
+                Navigator.of(context)
+                    .pop(); // Dismiss the dialog without logging out
+              },
+            ),
+            TextButton(
+              child:
+                  const Text('Log Out', style: TextStyle(color: Colors.orange)),
+              onPressed: () {
+                Navigator.of(context).pop(); // Dismiss the dialog
+                _performLogout(context); // Call the logout function
+              },
+            ),
+          ],
+        );
+      },
+    );
+  }
+
+  void _performLogout(BuildContext context) {
+    FirebaseAuth.instance.signOut().then((value) {
+      Navigator.of(context).pushReplacement(
+        MaterialPageRoute(
+            builder: (context) =>
+                const LoginPage()), // Assuming LoginPage is your login page
+      );
+    }).catchError((error) {
+      // In case of error, you might want to show a snackbar or another dialog
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text('Failed to log out: ${error.toString()}')),
+      );
+    });
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       body: Container(
         color: Colors.white,
-        padding: const EdgeInsets.all(20.0),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.center,
-          children: [
-            const Text(
-              'General Settings',
-              style: TextStyle(
+        padding: const EdgeInsets.only(top: 80, right: 50, left: 50),
+        child: Expanded(
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.center,
+            children: [
+              const Text(
+                'General Settings',
+                style: TextStyle(
+                  color: Colors.black,
+                  fontSize: 18.0,
+                  fontWeight: FontWeight.bold,
+                ),
+              ),
+              ElevatedButton(
+                onPressed: () {
+                  _showPrivacyPolicy(context);
+                },
+                style: ElevatedButton.styleFrom(
+                  shape: RoundedRectangleBorder(
+                    borderRadius: BorderRadius.circular(10),
+                  ),
+                  backgroundColor: Colors.orange[600],
+                ),
+                child: const Text(
+                  "Privacy",
+                  style: TextStyle(
+                    fontWeight: FontWeight.normal,
+                    fontSize: 16,
+                    color: Colors.white,
+                  ),
+                ),
+              ),
+              ElevatedButton(
+                onPressed: () {
+                  _showSecurityInfo(context);
+                },
+                style: ElevatedButton.styleFrom(
+                  shape: RoundedRectangleBorder(
+                    borderRadius: BorderRadius.circular(10),
+                  ),
+                  backgroundColor: Colors.orange[600],
+                ),
+                child: const Text(
+                  "Security",
+                  style: TextStyle(
+                    fontWeight: FontWeight.normal,
+                    fontSize: 16,
+                    color: Colors.white,
+                  ),
+                ),
+              ),
+              ElevatedButton(
+                onPressed: () {
+                  _showAboutUs(context);
+                },
+                style: ElevatedButton.styleFrom(
+                  shape: RoundedRectangleBorder(
+                    borderRadius: BorderRadius.circular(10),
+                  ),
+                  backgroundColor: Colors.orange[600],
+                ),
+                child: const Text(
+                  "About Us",
+                  style: TextStyle(
+                    fontWeight: FontWeight.normal,
+                    fontSize: 16,
+                    color: Colors.white,
+                  ),
+                ),
+              ),
+              const SizedBox(height: 28.0),
+              const Text(
+                'Account',
+                style: TextStyle(
+                  color: Colors.black,
+                  fontSize: 18.0,
+                  fontWeight: FontWeight.bold,
+                ),
+              ),
+              ElevatedButton(
+                onPressed: () {
+                  Navigator.push(
+                    context,
+                    MaterialPageRoute(builder: (c) => const ProfilePage()),
+                  );
+                },
+                style: ElevatedButton.styleFrom(
+                  shape: RoundedRectangleBorder(
+                    borderRadius: BorderRadius.circular(10),
+                  ),
+                  backgroundColor: Colors.orange[600],
+                ),
+                child: const Text(
+                  "Profile",
+                  style: TextStyle(
+                    fontWeight: FontWeight.normal,
+                    fontSize: 16,
+                    color: Colors.white,
+                  ),
+                ),
+              ),
+              ElevatedButton(
+                onPressed: () {
+                  AccountManagement.showDeleteConfirmation(context);
+                },
+                style: ElevatedButton.styleFrom(
+                  shape: RoundedRectangleBorder(
+                    borderRadius: BorderRadius.circular(10),
+                  ),
+                  backgroundColor: Colors.orange[600],
+                ),
+                child: const Text(
+                  "Delete Account",
+                  style: TextStyle(
+                    fontWeight: FontWeight.normal,
+                    fontSize: 16,
+                    color: Colors.white,
+                  ),
+                ),
+              ),
+              ElevatedButton(
+                onPressed: () {
+                  _confirmLogout(context); // Use the confirm logout function
+                },
+                style: ElevatedButton.styleFrom(
+                  shape: RoundedRectangleBorder(
+                    borderRadius: BorderRadius.circular(10),
+                  ),
+                  backgroundColor: Colors.orange[600],
+                ),
+                child: const Text(
+                  "Log Out",
+                  style: TextStyle(
+                    fontWeight: FontWeight.normal,
+                    fontSize: 16,
+                    color: Colors.white,
+                  ),
+                ),
+              ),
+              const SizedBox(height: 20),
+              const Divider(
                 color: Colors.black,
-                fontSize: 18.0,
-                fontWeight: FontWeight.bold,
+                thickness: 1.0,
               ),
-            ),
-            const SizedBox(height: 20.0),
-            ElevatedButton(
-              onPressed: () {
-                _showPrivacyPolicy(context);
-              },
-              style: ElevatedButton.styleFrom(
-                shape: RoundedRectangleBorder(
-                  borderRadius: BorderRadius.circular(10),
+              Flexible(
+                child: Image.asset(
+                  'lib/images/route4me logo.png',
+                  width: 250,
+                  height: 250,
                 ),
-                backgroundColor: Colors.orange[600],
-              ),
-              child: const Text(
-                "Privacy",
-                style: TextStyle(
-                  fontWeight: FontWeight.normal,
-                  fontSize: 16,
-                  color: Colors.white,
-                ),
-              ),
-            ),
-            ElevatedButton(
-              onPressed: () {
-                _showSecurityInfo(context);
-              },
-              style: ElevatedButton.styleFrom(
-                shape: RoundedRectangleBorder(
-                  borderRadius: BorderRadius.circular(10),
-                ),
-                backgroundColor: Colors.orange[600],
-              ),
-              child: const Text(
-                "Security",
-                style: TextStyle(
-                  fontWeight: FontWeight.normal,
-                  fontSize: 16,
-                  color: Colors.white,
-                ),
-              ),
-            ),
-            ElevatedButton(
-              onPressed: () {
-                _showAboutUs(context);
-              },
-              style: ElevatedButton.styleFrom(
-                shape: RoundedRectangleBorder(
-                  borderRadius: BorderRadius.circular(10),
-                ),
-                backgroundColor: Colors.orange[600],
-              ),
-              child: const Text(
-                "About Us",
-                style: TextStyle(
-                  fontWeight: FontWeight.normal,
-                  fontSize: 16,
-                  color: Colors.white,
-                ),
-              ),
-            ),
-            const SizedBox(height: 18.0),
-            const Text(
-              'Account',
-              style: TextStyle(
-                color: Colors.black,
-                fontSize: 18.0,
-                fontWeight: FontWeight.bold,
-              ),
-            ),
-            ElevatedButton(
-              onPressed: () {
-                Navigator.push(
-                  context,
-                  MaterialPageRoute(builder: (c) => const ProfilePage()),
-                );
-              },
-              style: ElevatedButton.styleFrom(
-                shape: RoundedRectangleBorder(
-                  borderRadius: BorderRadius.circular(10),
-                ),
-                backgroundColor: Colors.orange[600],
-              ),
-              child: const Text(
-                "Profile",
-                style: TextStyle(
-                  fontWeight: FontWeight.normal,
-                  fontSize: 16,
-                  color: Colors.white,
-                ),
-              ),
-            ),
-            ElevatedButton(
-              onPressed: () {
-                AccountManagement.showDeleteConfirmation(context);
-              },
-              style: ElevatedButton.styleFrom(
-                shape: RoundedRectangleBorder(
-                  borderRadius: BorderRadius.circular(10),
-                ),
-                backgroundColor: Colors.orange[600],
-              ),
-              child: const Text(
-                "Delete Account",
-                style: TextStyle(
-                  fontWeight: FontWeight.normal,
-                  fontSize: 16,
-                  color: Colors.white,
-                ),
-              ),
-            ),
-            const Divider(
-              color: Colors.white,
-              thickness: 1.0,
-            ),
-          ],
+              )
+            ],
+          ),
         ),
       ),
     );
@@ -150,9 +225,9 @@ void _showPrivacyPolicy(BuildContext context) {
           'Privacy Policy',
           textAlign: TextAlign.center,
         ),
-        content: SingleChildScrollView(
+        content: const SingleChildScrollView(
           child: ListBody(
-            children: const <Widget>[
+            children: <Widget>[
               Text(
                 'We take your privacy seriously. This means we only collect personal information that is necessary to provide you with our service. You will always have choices about what information you share and how we use it.',
                 textAlign: TextAlign.center,
@@ -166,7 +241,7 @@ void _showPrivacyPolicy(BuildContext context) {
         ),
         shape: RoundedRectangleBorder(
           borderRadius: BorderRadius.circular(10),
-          side: BorderSide(color: Colors.orange, width: 2),
+          side: const BorderSide(color: Colors.orange, width: 2),
         ),
         actions: <Widget>[
           TextButton(

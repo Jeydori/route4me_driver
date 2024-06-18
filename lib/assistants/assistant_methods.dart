@@ -11,20 +11,30 @@ import 'package:route4me_driver/models/direction_infos.dart';
 import 'package:route4me_driver/models/user_model.dart';
 
 class assistantMethods {
-  static Future<void> readCurrentOnlineUserInfo() async {
+  static Future<UserModel> readCurrentOnlineUserInfo() async {
     try {
       final currentUser = firebaseAuth.currentUser;
       if (currentUser != null) {
         final userRef = FirebaseDatabase.instance
-            .reference()
+            .ref()
             .child('Drivers')
             .child(currentUser.uid);
 
-        DataSnapshot snapshot = (await userRef.once()) as DataSnapshot;
+        DatabaseEvent event = await userRef.once();
+        DataSnapshot snapshot = event.snapshot;
 
         if (snapshot.value != null) {
-          userModelCurrentInfo = UserModel.fromSnapshot(snapshot);
-          print('User info retrieved: $userModelCurrentInfo');
+          Map<String, dynamic> data =
+              Map<String, dynamic>.from(snapshot.value as Map);
+          UserModel userModel = UserModel(
+            firstName: data['First Name'] ?? '',
+            lastName: data['Last Name'] ?? '',
+            age: data['Age'] ?? 0,
+            email: data['Email'] ?? '',
+            uid: currentUser.uid,
+          );
+
+          return userModel;
         } else {
           throw Exception('User document does not exist');
         }
@@ -32,7 +42,29 @@ class assistantMethods {
         throw Exception('Current user is null');
       }
     } catch (error) {
-      print("Failed to get user info: $error");
+      rethrow; // Propagate the error for handling by the caller
+    }
+  }
+
+  static Future<void> updateUserInfo(UserModel updatedUserModel) async {
+    try {
+      final currentUser = firebaseAuth.currentUser;
+      if (currentUser != null) {
+        final userRef = FirebaseDatabase.instance
+            .ref()
+            .child('Drivers')
+            .child(currentUser.uid);
+
+        await userRef.update({
+          'First Name': updatedUserModel.firstName,
+          'Last Name': updatedUserModel.lastName,
+          'Age': updatedUserModel.age,
+          'Email': updatedUserModel.email,
+        });
+      } else {
+        throw Exception('Current user is null');
+      }
+    } catch (error) {
       rethrow; // Propagate the error for handling by the caller
     }
   }

@@ -42,7 +42,7 @@ class _RegisterPageState extends State<RegisterPage> {
       Future<void> addUserDetails(String firstName, String lastName, int age,
           String email, String uid) async {
         DatabaseReference userRef =
-            FirebaseDatabase.instance.reference().child("Drivers").child(uid);
+            FirebaseDatabase.instance.ref().child("Drivers").child(uid);
         await userRef.set({
           'First Name': firstName,
           'Last Name': lastName,
