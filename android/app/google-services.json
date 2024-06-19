@@ -59,6 +59,14 @@
       },
       "oauth_client": [
         {
+          "client_id": "315854700999-qufoj7rpa1oo8fhm6br25a4i7u8lueov.apps.googleusercontent.com",
+          "client_type": 1,
+          "android_info": {
+            "package_name": "com.example.route4me_driver",
+            "certificate_hash": "7c80f88423ad12dc69e48222bca014cddcd67540"
+          }
+        },
+        {
           "client_id": "315854700999-6m61qpfchpakmj8bltti4gt4iqkn6k0c.apps.googleusercontent.com",
           "client_type": 3
         }
