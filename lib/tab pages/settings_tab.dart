@@ -1,5 +1,6 @@
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
+
 import 'package:route4me_driver/pages/profile_page.dart';
 import 'package:route4me_driver/services/acc_del.dart';
 
@@ -43,10 +44,10 @@ class SettingsPage extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      body: Container(
-        color: Colors.white,
-        padding: const EdgeInsets.only(top: 80, right: 50, left: 50),
-        child: Expanded(
+      backgroundColor: Colors.white,
+      body: SingleChildScrollView(
+        child: Container(
+          padding: const EdgeInsets.only(top: 80, right: 50, left: 50),
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.center,
             children: [
@@ -189,12 +190,10 @@ class SettingsPage extends StatelessWidget {
                 color: Colors.black,
                 thickness: 1.0,
               ),
-              Flexible(
-                child: Image.asset(
-                  'lib/images/route4me logo.png',
-                  width: 250,
-                  height: 250,
-                ),
+              Image.asset(
+                'lib/images/route4me logo.png',
+                width: 250,
+                height: 250,
               )
             ],
           ),
