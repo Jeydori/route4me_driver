@@ -1,55 +1,43 @@
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
-import 'package:route4me_driver/pages/login_page.dart';
 import 'package:route4me_driver/pages/profile_page.dart';
 import 'package:route4me_driver/services/acc_del.dart';
 
 class SettingsPage extends StatelessWidget {
   const SettingsPage({super.key});
 
-  void _confirmLogout(BuildContext context) {
-    showDialog(
-      context: context,
-      builder: (BuildContext context) {
-        return AlertDialog(
-          title: const Text("Confirm Logout"),
-          content: const Text("Are you sure you want to log out?"),
-          actions: <Widget>[
-            TextButton(
-              child:
-                  const Text('Cancel', style: TextStyle(color: Colors.orange)),
-              onPressed: () {
-                Navigator.of(context)
-                    .pop(); // Dismiss the dialog without logging out
-              },
+  void _confirmLogout(BuildContext context) async {
+    final bool confirm = await showDialog(
+          context: context,
+          builder: (BuildContext context) => AlertDialog(
+            title: const Text("Confirm Logout"),
+            content: const Text("Are you sure you want to log out?"),
+            shape: RoundedRectangleBorder(
+              borderRadius: BorderRadius.circular(10),
+              side: const BorderSide(color: Colors.orange, width: 2),
             ),
-            TextButton(
-              child:
-                  const Text('Log Out', style: TextStyle(color: Colors.orange)),
-              onPressed: () {
-                Navigator.of(context).pop(); // Dismiss the dialog
-                _performLogout(context); // Call the logout function
-              },
-            ),
-          ],
-        );
-      },
-    );
-  }
+            actionsAlignment: MainAxisAlignment.center,
+            actions: <Widget>[
+              TextButton(
+                onPressed: () => Navigator.of(context).pop(false),
+                child: const Text('Cancel'),
+              ),
+              TextButton(
+                onPressed: () => Navigator.of(context).pop(true),
+                style: TextButton.styleFrom(
+                  foregroundColor: Colors.white,
+                  backgroundColor: Colors.orange,
+                ),
+                child: const Text('Logout'),
+              ),
+            ],
+          ),
+        ) ??
+        false; // Handling the case where dialog is dismissed with no selection
 
-  void _performLogout(BuildContext context) {
-    FirebaseAuth.instance.signOut().then((value) {
-      Navigator.of(context).pushReplacement(
-        MaterialPageRoute(
-            builder: (context) =>
-                const LoginPage()), // Assuming LoginPage is your login page
-      );
-    }).catchError((error) {
-      // In case of error, you might want to show a snackbar or another dialog
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text('Failed to log out: ${error.toString()}')),
-      );
-    });
+    if (confirm) {
+      FirebaseAuth.instance.signOut();
+    }
   }
 
   @override

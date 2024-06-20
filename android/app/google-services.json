@@ -15,11 +15,11 @@
       },
       "oauth_client": [
         {
-          "client_id": "315854700999-34kkrcf9rgvoau6gu33ofbudebfjv7ed.apps.googleusercontent.com",
+          "client_id": "315854700999-lka9lomitfbtn2pqif94nttums7uk5cf.apps.googleusercontent.com",
           "client_type": 1,
           "android_info": {
             "package_name": "com.example.route4me",
-            "certificate_hash": "8c496e95bd418e75afdebb24fc1ff87d328623c0"
+            "certificate_hash": "2bc9a39e34b2861638b9b2433604791a10905f6a"
           }
         },
         {

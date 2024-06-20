@@ -15,8 +15,9 @@ class HomeTab extends StatefulWidget {
   State<HomeTab> createState() => _HomeTabState();
 }
 
-class _HomeTabState extends State<HomeTab> {
+class _HomeTabState extends State<HomeTab> with AutomaticKeepAliveClientMixin {
   GoogleMapController? newGoogleMapController;
+  bool get wantKeepAlive => true;
   final Completer<GoogleMapController> _controllerGoogleMap = Completer();
 
   static const CameraPosition Manila = CameraPosition(
@@ -98,6 +99,7 @@ class _HomeTabState extends State<HomeTab> {
 
   @override
   Widget build(BuildContext context) {
+    super.build(context);
     return Scaffold(
       body: Stack(
         children: [
@@ -159,25 +161,22 @@ class _HomeTabState extends State<HomeTab> {
           // Floating action buttons for vehicle status
           if (isDriverActive) ...[
             Positioned(
-              bottom: 110,
-              right: 10,
-              child: FloatingActionButton(
-                onPressed: () => setVehicleStatus(true),
-                backgroundColor: Colors.red,
-                tooltip: 'Set Vehicle as Full',
-                child: const Icon(Icons.bus_alert_outlined),
-              ),
-            ),
-            Positioned(
               bottom: 50,
               right: 10,
               child: FloatingActionButton(
-                onPressed: () => setVehicleStatus(false),
-                backgroundColor: Colors.green,
-                tooltip: 'Set Vehicle as Available',
-                child: const Icon(Icons.directions_bus_filled_outlined),
+                onPressed: () => setVehicleStatus(
+                    !isVehicleFull), // Toggle the vehicle status
+                backgroundColor: isVehicleFull
+                    ? Colors.red
+                    : Colors.green, // Red if full, green if available
+                tooltip: isVehicleFull
+                    ? 'Set Vehicle as Available'
+                    : 'Set Vehicle as Full', // Tooltip updates based on the state
+                child: Icon(isVehicleFull
+                    ? Icons.bus_alert_outlined
+                    : Icons.directions_bus_filled_outlined),
               ),
-            ),
+            )
           ],
         ],
       ),
