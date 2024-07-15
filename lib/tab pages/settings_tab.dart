@@ -163,11 +163,6 @@ class SettingsPage extends StatelessWidget {
               ElevatedButton(
                 onPressed: () {
                   AccountManagement.showDeleteConfirmation(context);
-                  Navigator.push(
-                    context,
-                    MaterialPageRoute(
-                        builder: (c) => const LoginOrRegisterPage()),
-                  );
                 },
                 style: ElevatedButton.styleFrom(
                   shape: RoundedRectangleBorder(

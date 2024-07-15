@@ -1,5 +1,8 @@
 import 'package:firebase_database/firebase_database.dart';
+import 'package:firebase_storage/firebase_storage.dart';
 import 'package:flutter/material.dart';
+import 'dart:io';
+import 'package:image_picker/image_picker.dart';
 import 'package:route4me_driver/components/button.dart';
 import 'package:route4me_driver/components/text_field.dart';
 import 'package:route4me_driver/global/global.dart';
@@ -22,11 +25,56 @@ class _carInfoPageState extends State<carInfoPage> {
     'Bus Ordinary (O-PUB)'
   ];
   String? selectedCarType;
+  File? _image;
 
   @override
   void dispose() {
     carPlateController.dispose();
     super.dispose();
+  }
+
+  Future<void> _pickImage() async {
+    final picker = ImagePicker();
+    final pickedFile = await picker.pickImage(source: ImageSource.gallery);
+    if (pickedFile != null) {
+      setState(() {
+        _image = File(pickedFile.path);
+      });
+    }
+  }
+
+  Future<void> _captureImage() async {
+    final picker = ImagePicker();
+    final pickedFile = await picker.pickImage(source: ImageSource.camera);
+    if (pickedFile != null) {
+      setState(() {
+        _image = File(pickedFile.path);
+      });
+    }
+  }
+
+  Future<String?> _uploadImage(File image) async {
+    try {
+      final currentUser = firebaseAuth.currentUser;
+      if (currentUser == null) {
+        throw Exception('No authenticated user');
+      }
+
+      final userId = currentUser.uid;
+      final storageRef = FirebaseStorage.instance
+          .ref()
+          .child('car_images')
+          .child(userId)
+          .child('${DateTime.now().millisecondsSinceEpoch}.jpg');
+
+      final uploadTask = storageRef.putFile(image);
+      final snapshot = await uploadTask.whenComplete(() => null);
+      final downloadUrl = await snapshot.ref.getDownloadURL();
+      return downloadUrl;
+    } catch (e) {
+      print("Failed to upload image: $e");
+      return null;
+    }
   }
 
   void savePUVDetails() async {
@@ -38,9 +86,15 @@ class _carInfoPageState extends State<carInfoPage> {
             .child('Drivers')
             .child(currentUser.uid);
 
+        String? imageUrl;
+        if (_image != null) {
+          imageUrl = await _uploadImage(_image!);
+        }
+
         await userRef.update({
           'carPlate': carPlateController.text,
           'carType': selectedCarType,
+          'carImage': imageUrl,
         });
 
         // Show success dialog
@@ -163,6 +217,38 @@ class _carInfoPageState extends State<carInfoPage> {
                           selectedCarType = newValue.toString();
                         });
                       }),
+                ),
+                const SizedBox(
+                  height: 20,
+                ),
+                _image != null
+                    ? Image.file(_image!)
+                    : const Text('No image selected.'),
+                Row(
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  children: [
+                    ElevatedButton(
+                      onPressed: _pickImage,
+                      style: ElevatedButton.styleFrom(
+                        foregroundColor: Colors.grey,
+                        backgroundColor: Colors.white, // Text color
+                        side: const BorderSide(
+                            color: Colors.orange), // Border color
+                      ),
+                      child: const Text('Upload Image'),
+                    ),
+                    const SizedBox(width: 20),
+                    ElevatedButton(
+                      onPressed: _captureImage,
+                      style: ElevatedButton.styleFrom(
+                        foregroundColor: Colors.grey,
+                        backgroundColor: Colors.white, // Text color
+                        side: const BorderSide(
+                            color: Colors.orange), // Border color
+                      ),
+                      child: const Text('Capture Image'),
+                    ),
+                  ],
                 ),
                 const SizedBox(
                   height: 20,

@@ -70,7 +70,7 @@ class _RegisterPageState extends State<RegisterPage> {
                 mainAxisSize: MainAxisSize.min,
                 children: [
                   const Text(
-                    'Registration successful! Please verify your email before logging in.',
+                    'Registration successful! Please verify your email and wait a moment.',
                     textAlign: TextAlign.center,
                   ),
                   const SizedBox(height: 20),

@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:firebase_database/firebase_database.dart';
+import 'package:route4me_driver/pages/login_register_page.dart';
 
 class AccountManagement {
   static void showDeleteConfirmation(BuildContext context) {
@@ -75,6 +76,11 @@ class AccountManagement {
                   child: const Text('OK'),
                   onPressed: () {
                     Navigator.of(context).pop(); // Close the success dialog
+                    Navigator.pushReplacement(
+                      context,
+                      MaterialPageRoute(
+                          builder: (context) => const LoginOrRegisterPage()),
+                    );
                   },
                 ),
               ],

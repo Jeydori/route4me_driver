@@ -31,7 +31,8 @@ class assistantMethods {
             lastName: data['Last Name'] ?? '',
             age: data['Age'] ?? 0,
             email: data['Email'] ?? '',
-            uid: currentUser.uid,
+            uid: data['Uid'] ?? '',
+            profileImageUrl: data['carImage'],
           );
 
           return userModel;
@@ -60,6 +61,7 @@ class assistantMethods {
           'Last Name': updatedUserModel.lastName,
           'Age': updatedUserModel.age,
           'Email': updatedUserModel.email,
+          'carImage': updatedUserModel.profileImageUrl,
         });
       } else {
         throw Exception('Current user is null');
