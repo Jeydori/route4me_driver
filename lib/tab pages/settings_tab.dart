@@ -1,5 +1,6 @@
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
+import 'package:route4me_driver/pages/login_register_page.dart';
 
 import 'package:route4me_driver/pages/profile_page.dart';
 import 'package:route4me_driver/services/acc_del.dart';
@@ -38,6 +39,8 @@ class SettingsPage extends StatelessWidget {
 
     if (confirm) {
       FirebaseAuth.instance.signOut();
+      Navigator.pushReplacement(context,
+          MaterialPageRoute(builder: (context) => const LoginOrRegisterPage()));
     }
   }
 
@@ -160,6 +163,11 @@ class SettingsPage extends StatelessWidget {
               ElevatedButton(
                 onPressed: () {
                   AccountManagement.showDeleteConfirmation(context);
+                  Navigator.push(
+                    context,
+                    MaterialPageRoute(
+                        builder: (c) => const LoginOrRegisterPage()),
+                  );
                 },
                 style: ElevatedButton.styleFrom(
                   shape: RoundedRectangleBorder(
