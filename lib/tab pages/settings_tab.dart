@@ -1,15 +1,15 @@
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
+import 'package:google_sign_in/google_sign_in.dart';
 import 'package:route4me_driver/pages/login_register_page.dart';
-
 import 'package:route4me_driver/pages/profile_page.dart';
 import 'package:route4me_driver/services/acc_del.dart';
 
 class SettingsPage extends StatelessWidget {
   const SettingsPage({super.key});
 
-  void _confirmLogout(BuildContext context) async {
-    final bool confirm = await showDialog(
+  Future<void> _confirmLogout(BuildContext context) async {
+    final bool confirm = await showDialog<bool>(
           context: context,
           builder: (BuildContext context) => AlertDialog(
             title: const Text("Confirm Logout"),
@@ -35,12 +35,22 @@ class SettingsPage extends StatelessWidget {
             ],
           ),
         ) ??
-        false; // Handling the case where dialog is dismissed with no selection
+        false;
 
     if (confirm) {
-      FirebaseAuth.instance.signOut();
-      Navigator.pushReplacement(context,
-          MaterialPageRoute(builder: (context) => const LoginOrRegisterPage()));
+      try {
+        await FirebaseAuth.instance.signOut();
+        GoogleSignIn().signOut();
+        GoogleSignIn().disconnect();
+        Navigator.of(context).popUntil((route) => route.isFirst);
+        Navigator.pushReplacement(
+            context,
+            MaterialPageRoute(
+                builder: (context) => const LoginOrRegisterPage()));
+        ;
+      } catch (error) {
+        print("Failed to log out: $error");
+      }
     }
   }
 

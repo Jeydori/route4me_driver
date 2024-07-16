@@ -41,68 +41,93 @@ class _RegisterPageState extends State<RegisterPage> {
   }
 
   // sign user up method
-  void signUp() async {
+  void signUp() {
     if (passwordController.text == confirmPasswordController.text) {
       // Use AuthService to register the user
       var authService = AuthService();
-      var user = await authService.registerWithEmailPassword(
+      authService
+          .registerWithEmailPassword(
         emailController.text.trim(),
         passwordController.text.trim(),
-      );
-
-      if (user != null) {
-        // User has been created and verification email sent
-        await addUserDetails(
-          firstNameController.text.trim(),
-          lastNameController.text.trim(),
-          int.parse(ageController.text.trim()),
-          emailController.text.trim(),
-          user.uid,
-        );
-
-        // Show a dialog asking the user to verify their email
-        showDialog(
-          context: context,
-          builder: (context) {
-            _startEmailVerificationCheck();
-            return AlertDialog(
-              content: Column(
-                mainAxisSize: MainAxisSize.min,
-                children: [
-                  const Text(
-                    'Registration successful! Please verify your email and wait a moment.',
-                    textAlign: TextAlign.center,
+      )
+          .then((user) {
+        if (user != null) {
+          // User has been created and verification email sent
+          addUserDetails(
+            firstNameController.text.trim(),
+            lastNameController.text.trim(),
+            int.parse(ageController.text.trim()),
+            emailController.text.trim(),
+            user.uid,
+          ).then((_) {
+            // Show a dialog asking the user to verify their email
+            showDialog(
+              context: context,
+              barrierDismissible: false, // Prevent dialog from being dismissed
+              builder: (context) {
+                _startEmailVerificationCheck();
+                return AlertDialog(
+                  shape: RoundedRectangleBorder(
+                    borderRadius: BorderRadius.circular(10),
+                    side: const BorderSide(color: Colors.orange, width: 2),
                   ),
-                  const SizedBox(height: 20),
-                  ElevatedButton(
-                    onPressed: () async {
-                      await user.sendEmailVerification();
-                      ScaffoldMessenger.of(context).showSnackBar(
-                        const SnackBar(
-                            content: Text("Verification email sent")),
-                      );
-                    },
-                    child: const Text("Resend Verification Email"),
+                  content: Column(
+                    mainAxisSize: MainAxisSize.min,
+                    children: [
+                      const Text(
+                        'Registration successful! Please verify your email and wait a moment.',
+                        textAlign: TextAlign.center,
+                        style: TextStyle(color: Colors.black),
+                      ),
+                      const SizedBox(height: 20),
+                      ElevatedButton(
+                        onPressed: () {
+                          user.sendEmailVerification().then((_) {
+                            ScaffoldMessenger.of(context).showSnackBar(
+                              const SnackBar(
+                                  content: Text("Verification email sent")),
+                            );
+                          }).catchError((error) {
+                            print("Failed to send verification email: $error");
+                          });
+                        },
+                        style: ElevatedButton.styleFrom(
+                          foregroundColor: Colors.black,
+                          backgroundColor: Colors.white,
+                          side:
+                              const BorderSide(color: Colors.orange, width: 2),
+                          shape: RoundedRectangleBorder(
+                            borderRadius: BorderRadius.circular(10),
+                          ),
+                        ),
+                        child: const Text("Resend Verification Email"),
+                      ),
+                    ],
                   ),
-                ],
-              ),
+                );
+              },
             );
-          },
-        );
-      } else {
-        // Show an error message if registration failed
-        showDialog(
-          context: context,
-          builder: (context) {
-            return const AlertDialog(
-              content: Text(
-                textAlign: TextAlign.center,
-                'Failed to register. Please try again.',
-              ),
-            );
-          },
-        );
-      }
+          }).catchError((error) {
+            print("Failed to add user details: $error");
+          });
+        } else {
+          // Show an error message if registration failed
+          showDialog(
+            context: context,
+            builder: (context) {
+              return const AlertDialog(
+                content: Text(
+                  textAlign: TextAlign.center,
+                  'Failed to register. Please try again.',
+                ),
+              );
+            },
+          );
+        }
+      }).catchError((error) {
+        print("Registration failed: $error");
+        // Handle registration error
+      });
     } else {
       // Show error if passwords do not match
       showDialog(
@@ -137,17 +162,20 @@ class _RegisterPageState extends State<RegisterPage> {
   }
 
   void _startEmailVerificationCheck() {
-    _timer = Timer.periodic(const Duration(seconds: 3), (timer) async {
-      User? user = firebaseAuth.currentUser;
-      await user?.reload();
-      if (user != null && user.emailVerified) {
-        _timer?.cancel();
-        Navigator.of(context).pop(); // Close the dialog
-        Navigator.pushReplacement(
-          context,
-          MaterialPageRoute(builder: (context) => const carInfoPage()),
-        );
-      }
+    _timer = Timer.periodic(const Duration(seconds: 3), (timer) {
+      FirebaseAuth.instance.currentUser?.reload().then((_) {
+        User? user = FirebaseAuth.instance.currentUser;
+        if (user != null && user.emailVerified) {
+          _timer?.cancel();
+          Navigator.of(context).pop(); // Close the dialog
+          Navigator.pushReplacement(
+            context,
+            MaterialPageRoute(builder: (context) => const carInfoPage()),
+          );
+        }
+      }).catchError((error) {
+        print("Error reloading user: $error");
+      });
     });
   }
 

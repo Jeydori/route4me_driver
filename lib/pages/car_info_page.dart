@@ -102,8 +102,18 @@ class _carInfoPageState extends State<carInfoPage> {
           context: context,
           builder: (context) {
             return AlertDialog(
-              title: const Text('Success'),
-              content: const Text('PUV details added successfully!'),
+              shape: RoundedRectangleBorder(
+                borderRadius: BorderRadius.circular(10),
+                side: const BorderSide(color: Colors.orange, width: 2),
+              ),
+              title: const Text(
+                'Success',
+                style: TextStyle(color: Colors.black),
+              ),
+              content: const Text(
+                'PUV details added successfully!',
+                style: TextStyle(color: Colors.black),
+              ),
               actions: <Widget>[
                 TextButton(
                   onPressed: () {
@@ -113,7 +123,10 @@ class _carInfoPageState extends State<carInfoPage> {
                       MaterialPageRoute(builder: (context) => const HomePage()),
                     );
                   },
-                  child: const Text('OK'),
+                  child: const Text(
+                    'OK',
+                    style: TextStyle(color: Colors.black),
+                  ),
                 ),
               ],
             );
@@ -129,15 +142,27 @@ class _carInfoPageState extends State<carInfoPage> {
         context: context,
         builder: (context) {
           return AlertDialog(
-            title: const Text('Error'),
+            shape: RoundedRectangleBorder(
+              borderRadius: BorderRadius.circular(10),
+              side: const BorderSide(color: Colors.orange, width: 2),
+            ),
+            title: const Text(
+              'Error',
+              style: TextStyle(color: Colors.black),
+            ),
             content: const Text(
-                'Failed to save PUV details. Please try again later.'),
+              'Failed to save PUV details. Please try again later.',
+              style: TextStyle(color: Colors.black),
+            ),
             actions: <Widget>[
               TextButton(
                 onPressed: () {
                   Navigator.of(context).pop();
                 },
-                child: const Text('OK'),
+                child: const Text(
+                  'OK',
+                  style: TextStyle(color: Colors.black),
+                ),
               ),
             ],
           );
@@ -189,7 +214,7 @@ class _carInfoPageState extends State<carInfoPage> {
                   height: 20,
                 ),
                 Padding(
-                  padding: const EdgeInsets.symmetric(horizontal: 25.0),
+                  padding: const EdgeInsets.symmetric(horizontal: 20.0),
                   child: DropdownButtonFormField(
                       decoration: InputDecoration(
                         hintText: '   Choose PUV Type',
@@ -208,7 +233,7 @@ class _carInfoPageState extends State<carInfoPage> {
                           value: car,
                           child: Text(
                             car,
-                            style: TextStyle(color: Colors.grey[600]),
+                            style: TextStyle(color: Colors.grey[800]),
                           ),
                         );
                       }).toList(),
@@ -230,7 +255,7 @@ class _carInfoPageState extends State<carInfoPage> {
                     ElevatedButton(
                       onPressed: _pickImage,
                       style: ElevatedButton.styleFrom(
-                        foregroundColor: Colors.grey,
+                        foregroundColor: Colors.black,
                         backgroundColor: Colors.white, // Text color
                         side: const BorderSide(
                             color: Colors.orange), // Border color
@@ -241,7 +266,7 @@ class _carInfoPageState extends State<carInfoPage> {
                     ElevatedButton(
                       onPressed: _captureImage,
                       style: ElevatedButton.styleFrom(
-                        foregroundColor: Colors.grey,
+                        foregroundColor: Colors.black,
                         backgroundColor: Colors.white, // Text color
                         side: const BorderSide(
                             color: Colors.orange), // Border color
